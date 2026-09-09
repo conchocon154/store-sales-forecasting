@@ -1,0 +1,4 @@
+experiment,fold,rmsle,seconds,config
+residual,2017-06-29,0.3705830440192016,119.342524875,{'residual': True}
+residual,2017-07-15,0.39107085573084677,137.85148920900002,{'residual': True}
+residual,2017-07-31,0.4194241344979584,127.66487341599998,{'residual': True}
