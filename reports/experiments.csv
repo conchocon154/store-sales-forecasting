@@ -35,3 +35,6 @@ residual_deep,2017-07-31,0.411004202617541,176.04672816699986,"{'residual': True
 residual_slow,2017-06-29,0.3705971995254118,251.86248370799967,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
 residual_slow,2017-07-15,0.44110730456375347,290.5791190830005,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
 residual_slow,2017-07-31,0.41183734995619453,597.1115988339998,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
+residual_recency,2017-06-29,0.37290867808529776,292.5808381249999,"{'residual': True, 'half_life': 180}"
+residual_recency,2017-07-15,0.43233920498050715,237.7268920000006,"{'residual': True, 'half_life': 180}"
+residual_recency,2017-07-31,0.4106086736442532,153.65316299999995,"{'residual': True, 'half_life': 180}"

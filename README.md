@@ -54,9 +54,13 @@ weekday mean is such a hard baseline to beat.
 
 Indexed so two families of very different size read on one axis — 1.0 is each
 family's own average day. Grocery sits flat on 1.0. School and office supplies
-runs at about **0.3×** for most of the year and **7×** in the weeks around the
-test window, because Ecuadorean term starts in August. That one family carries
-13.1% of the squared error on 3% of the rows, and this chart is why.
+runs at about **0.35×** its own average through the quiet months and **2.6×** inside the sixteen days — a sevenfold swing whose peak, 7.2×, lands on day 248, just *after* the window closes, because Ecuadorean term
+starts in August.
+
+The window therefore catches the family mid-climb, between a peak and a trough,
+swinging between 2.0× and 4.0× across sixteen days — which is harder to forecast
+than the peak itself would be. That one family carries 13.1% of the squared
+error on 3% of the rows, and this chart is why.
 
 ## Where this actually stands
 

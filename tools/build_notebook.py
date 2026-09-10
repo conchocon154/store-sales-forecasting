@@ -179,11 +179,12 @@ SEASON_NOTE = """
 
 The annual shape, indexed so two families of very different size read on one
 axis: 1.0 is each family's own average day. Grocery sits flat on 1.0 all year.
-School and office supplies runs at about **0.3×** for most of the year and
-**7×** in the weeks around the test window — Ecuadorean term starts in August.
+School and office supplies runs at about **0.35×** its own average through the quiet months and **2.6×** inside the sixteen days — a sevenfold swing whose peak, 7.2×, lands on day 248, just *after* the window closes — Ecuadorean term starts in August.
 
-That single family carries 13.1% of the squared error on 3% of the rows. This
-chart is why.
+So the window catches this family mid-climb, between a peak and a trough,
+swinging from 2.0× to 4.0× across sixteen days. That is harder than forecasting
+the peak would be, and it is why one family of thirty-three carries 13.1% of the
+squared error on 3% of the rows.
 """
 
 LADDER_NOTE = """
