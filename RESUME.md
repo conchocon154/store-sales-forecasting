@@ -77,7 +77,17 @@ seen. **Nothing measured against the current folds is worth submitting.**
 
 The three backtest folds all end 31 July and cannot see the August seasonal
 ramp. Every variant tuned against them has stopped paying or actively backfired.
-**Do not submit anything else selected on these folds.** The next move is one of:
+**Do not submit anything else selected on these folds.**
+
+One pattern in the four submissions is worth acting on. The two that used all
+training history with roughly equal origin weight (plain GBM, three-way blend)
+scored on the leaderboard at or *better* than their third fold. The two that
+leaned recent (`residual_wide` with extra recent origins, `blend_recency` with
+90-day half-life) scored worse. **August needs the full multi-year history and
+the year-ago seasonal signal more than July does** — so a future model should
+keep equal origin weighting and lean on the seasonal features, not against them.
+
+The next move is one of:
 
 1. **Understand the public/private split.** Hypothesis: the error climbs from
    ~0.40 on early horizons to ~0.46 on late ones (see `scripts/diagnose.py`
