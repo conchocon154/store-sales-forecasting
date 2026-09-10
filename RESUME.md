@@ -42,18 +42,25 @@ An agent picking this up again has three jobs and no need to re-derive anything:
 | leaderboard best | 0.37294 | 1 |
 | top 1% | 0.37715 | 7 |
 | top 5% | 0.38369 | 33 |
-| **submitted so far** | **0.40713** | **92** |
+| **submitted so far** | **0.40695** | **~92** |
 
-Local backtest and public leaderboard track each other closely — local 0.39752
-came back as 0.40713 — so a local mean is worth trusting to about +0.010.
+**0.40695 is not the goal.** The gap to the top 5% is 0.023 RMSLE.
 
-**0.40713 is not the goal.** The gap to the top 5% is 0.024 RMSLE, and the
-levers not yet pulled are listed below.
+## The open question, which comes before any new feature
+
+Two submissions scored 0.40713 and 0.40695 — 0.0002 apart — while differing by
+0.021 on the local fold that sits immediately before the test window. Local
+gains are not reaching the leaderboard. **Do not add features until this is
+understood**; anything measured locally is currently unfalsifiable.
+
+The hypothesis worth testing first: across a sixteen-day fold the error climbs
+from about 0.40 on the early days to 0.46 on the late ones, so if the public
+leaderboard covers the earlier part of the test window it is scoring the stretch
+where every model agrees. The test is cheap — score a fold on its first eight
+days and its last eight days separately, resubmit one of the two existing
+models, and see which half tracks the leaderboard.
 
 ## Levers not yet pulled
-
-- **Blending.** Several variants averaged in log space, which almost always
-  beats the best single one. Nothing here has been blended yet.
 - **Per-family models.** 33 families with very different dynamics share one
   model; the large families have enough rows to support their own.
 - **Two-stage zero handling.** A third of all rows are zero. Classify

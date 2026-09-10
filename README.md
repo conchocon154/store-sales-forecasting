@@ -21,6 +21,61 @@ Lower is better. Every row is measured the same way, on the same folds, with
 the same dead-series rule applied — so the gap between them is the modelling
 and not the protocol.
 
+## Where this actually stands
+
+| | RMSLE | rank of 642 |
+|---|---:|---:|
+| leaderboard best | 0.37294 | 1 |
+| top 1% | 0.37715 | 7 |
+| top 5% | 0.38369 | 33 |
+| **this, submitted** | **0.40695** | **~92** |
+
+**The honest headline is that the leaderboard has not moved.** Two submissions,
+a plain gradient booster and a three-way blend with a substantially better
+feature set, scored 0.40713 and 0.40695 — a difference of 0.0002 — while their
+local scores on the fold immediately before the test period differ by 0.021
+(0.42956 against 0.40892). Local improvement is real and measured; it is simply
+not reaching the leaderboard, and until that is understood, more feature work is
+guessing.
+
+The most likely explanation is in the per-day error. Across a sixteen-day fold
+the error climbs from about 0.40 on the first days to 0.46 on the last, because
+every model is doing the same easy thing early and diverging later. If the
+public leaderboard is scored on the earlier part of the test window, it is
+measuring exactly the stretch where these models agree. That is a hypothesis
+with an obvious test — hold out only the first eight days of a fold, and only
+the last eight, and see which one tracks the leaderboard — and it is the next
+thing to run, ahead of any new feature.
+
+The feature search has plateaued. Six variants — explicit lags, a residual
+target against the weekday mean, recency-weighted origins, a year-ago seasonal
+index, deeper trees, more origins — all land between 0.391 and 0.394 on the
+three-fold mean. When that many different feature sets give the same answer,
+the next gain is not another feature.
+
+### Where the loss is
+
+Splitting the third fold's squared error rather than staring at the aggregate:
+
+| | share of squared error | rows | RMSLE |
+|---|---:|---:|---:|
+| SCHOOL AND OFFICE SUPPLIES | 13.1% | 3.0% | 0.873 |
+| GROCERY II | 10.2% | 3.0% | 0.771 |
+| LINGERIE | 7.3% | 3.0% | 0.651 |
+| CELEBRATION | 5.1% | 3.0% | 0.544 |
+| MAGAZINES | 4.7% | 3.0% | 0.525 |
+
+Five families out of thirty-three carry 40% of the error on 15% of the rows,
+and the worst of them is the one with the sharpest annual season — Ecuadorean
+term starts in August and school supplies go up several-fold for a few weeks.
+The seasonal-index feature was built for exactly that and moved the August fold
+from 0.42002 to 0.41305, which is real and small.
+
+Rows whose true value is zero are 14.6% of what is left after the dead-series
+rule and carry 15.5% of the error; the model already predicts under 0.5 on 82%
+of them. A *perfect* zero classifier would take the August fold from 0.42002 to
+0.38602, which bounds how much a two-stage model could ever be worth here.
+
 ## Three decisions that set the result
 
 **Work in log space, throughout.** RMSLE is RMSE on `log1p`, so a model fitted

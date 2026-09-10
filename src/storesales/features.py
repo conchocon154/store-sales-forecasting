@@ -166,3 +166,50 @@ def dead_series(panel: pd.DataFrame, origin: pd.Timestamp,
                  (panel["date"] >= origin - pd.Timedelta(days=lookback))]
     total = past.groupby(["store_nbr", "family"], observed=True)["sales"].sum()
     return set(total[total == 0].index)
+
+
+# A fortnight centred on the same date a year ago. One day 364 days back is a
+# single noisy observation; fifteen of them are a season.
+YEAR_LAG = 364
+YEAR_WINDOW = 15
+
+
+def seasonal_index(panel: pd.DataFrame) -> pd.DataFrame:
+    """How far above its own baseline each series ran at this point last year.
+
+    This is the feature the error decomposition asked for. SCHOOL AND OFFICE
+    SUPPLIES is 13% of all squared error on the August fold, at RMSLE 0.873,
+    because Ecuadorean term starts and the family goes up several-fold for a
+    few weeks. A model that only sees day-of-year has four Augusts to learn
+    that from, against thirty-two other families pulling the gradient the other
+    way. A column that says "this series ran 1.9 above its usual level on this
+    date last year" hands it over directly.
+
+    Returned indexed by the date the value is *for*, so a row for 2017-08-16
+    carries what happened around 2016-08-17. Everything it reads is more than a
+    year old, so it is available for every forecast day.
+    """
+    keys = ["store_nbr", "family"]
+    df = panel[["date", "store_nbr", "family", "sales"]].copy()
+    df["y"] = np.log1p(df["sales"].to_numpy(dtype=float))
+    df = df.sort_values(keys + ["date"])
+
+    g = df.groupby(keys, observed=True)["y"]
+    df["season_window"] = g.transform(
+        lambda v: v.rolling(YEAR_WINDOW, center=True, min_periods=3).mean())
+    # The series' own level over the surrounding year, so the index is a shape
+    # and not a level — the level is already in the history columns.
+    df["season_base"] = g.transform(
+        lambda v: v.rolling(365, center=True, min_periods=60).mean())
+    df["season_index"] = df["season_window"] - df["season_base"]
+
+    # The same thing pooled across stores. One store-family is thin; a family
+    # across fifty-four stores is not.
+    fam = (df.groupby(["family", "date"], observed=True)["season_index"]
+             .mean().rename("fam_season_index").reset_index())
+
+    out = df[keys + ["date", "season_index"]].merge(
+        fam, on=["family", "date"], how="left")
+    # Shift forward a year: the row for date D carries what happened at D-364.
+    out["date"] = out["date"] + pd.Timedelta(days=YEAR_LAG)
+    return out.dropna(subset=["season_index"])

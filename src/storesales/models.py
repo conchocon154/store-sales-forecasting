@@ -185,6 +185,7 @@ class DirectGBM(Baseline):
         self._hol = holiday_flags(self._frames.holidays, self._frames.stores, index)
         self._cal = F.calendar(pd.Series(index)).assign(date=index)
         self._to_holiday = _days_to_national(self._frames.holidays, index)
+        self._season = F.seasonal_index(panel[panel["split"] == "train"])
 
     def _design(self, panel: pd.DataFrame, origin: pd.Timestamp,
                 target: pd.DataFrame) -> pd.DataFrame:
@@ -192,6 +193,7 @@ class DirectGBM(Baseline):
         x = target.merge(hist, on=KEYS, how="left")
         x = x.merge(self._cal, on="date", how="left")
         x = x.merge(self._hol, on=["date", "store_nbr"], how="left")
+        x = x.merge(self._season, on=KEYS + ["date"], how="left")
         x["oil"] = x["date"].map(self._oil)
         x["horizon"] = (x["date"] - origin).dt.days.astype("int16") + 1
         x["days_to_holiday"] = x["date"].map(self._to_holiday)
@@ -283,3 +285,37 @@ class DirectGBM(Baseline):
         dead = x.set_index(KEYS).index.isin(self._dead)
         out[dead] = 0.0
         return np.clip(out, 0.0, None)
+
+
+class Blend(Baseline):
+    """Average several variants in log space.
+
+    Not an ensemble for its own sake. Every variant tried here lands within
+    0.003 of every other on the aggregate while disagreeing on which rows it
+    gets wrong — the residual target wins the June fold and loses the August
+    one, the lag features do the reverse. Averaging keeps the agreement and
+    cancels part of the disagreement, which is the one reliable gain left once
+    a feature search has stopped paying.
+
+    Averaged in log space because that is the space the metric lives in;
+    averaging the sales and taking the log afterwards is a different, worse
+    estimator on a series that is zero a third of the time.
+    """
+
+    name = "blend"
+
+    def __init__(self, variants: list[dict] | None = None):
+        self.variants = variants or [dict(), dict(residual=True),
+                                     dict(half_life=180)]
+        self.name = f"blend_{len(self.variants)}"
+
+    def fit(self, panel, origin, frames=None):
+        self.origin = pd.Timestamp(origin)
+        self.models = [DirectGBM(**v).fit(panel, origin, frames=frames)
+                       for v in self.variants]
+        return self
+
+    def predict(self, frame):
+        logs = [np.log1p(np.clip(m.predict(frame), 0.0, None))
+                for m in self.models]
+        return np.expm1(np.mean(logs, axis=0))

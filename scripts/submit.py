@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from storesales import data as D            # noqa: E402
 from storesales import features as F        # noqa: E402
-from storesales.models import DirectGBM     # noqa: E402
+from storesales.configs import SUBMISSION   # noqa: E402
+from storesales.models import Blend          # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,7 +33,7 @@ def main() -> int:
     test = panel[panel["split"] == "test"].copy()
     origin = test["date"].min()
 
-    model = DirectGBM().fit(panel, origin, frames=frames)
+    model = Blend(**SUBMISSION).fit(panel, origin, frames=frames)
     test["sales"] = np.clip(np.nan_to_num(model.predict(test)), 0.0, None)
 
     sub = (test[["id", "sales"]].astype({"id": int})

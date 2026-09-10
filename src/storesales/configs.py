@@ -20,7 +20,17 @@ QUEUE: dict[str, dict] = {
     # Predict the gap from the weekday mean rather than the level itself. The
     # level is the easy part and it swamps the loss; subtracting it lets every
     # split in the tree be spent on the part that is actually hard.
+    # Averaging what disagrees. Every variant lands within 0.003 of the others
+    # while getting different rows wrong, which is the shape that blends well.
+    "blend3":           dict(variants=[dict(), dict(residual=True),
+                                       dict(half_life=180)]),
+    "blend4":           dict(variants=[dict(), dict(residual=True),
+                                       dict(half_life=180),
+                                       dict(max_leaf_nodes=127,
+                                            min_samples_leaf=20)]),
     "lags":             dict(),
+    "season":           dict(),
+    "season_recency":   dict(half_life=180),
     "lags_recency":     dict(half_life=180),
     "residual":         dict(residual=True),
     "residual_deep":    dict(residual=True, max_leaf_nodes=127,
@@ -40,6 +50,11 @@ QUEUE: dict[str, dict] = {
                                learning_rate=0.025, half_life=180),
 }
 
-# Variants worth blending once the single-model search has settled. Filled in
-# by hand from the leaderboard in reports/experiments.csv.
-BLEND: tuple[str, ...] = ()
+# What ships. Chosen on the *third* fold rather than the three-fold mean: the
+# third fold is the sixteen days immediately before the test period and it is
+# the only one asking the question the leaderboard asks. On that fold the blend
+# scores 0.40892 against 0.41305 for the best single model and 0.42956 for the
+# first submission — while on the three-fold mean it looks like a tie, which is
+# how the mean misleads.
+SUBMISSION: dict = dict(variants=[dict(), dict(residual=True),
+                                  dict(half_life=180)])

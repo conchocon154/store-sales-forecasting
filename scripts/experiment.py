@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from storesales import data as D            # noqa: E402
 from storesales import evaluate as E        # noqa: E402
 from storesales.configs import QUEUE        # noqa: E402
-from storesales.models import DirectGBM     # noqa: E402
+from storesales.models import Blend, DirectGBM  # noqa: E402
 
 RESULTS = ROOT / "reports" / "experiments.csv"
 
@@ -84,7 +84,8 @@ def main() -> int:
             history = pd.concat([panel[panel["date"] < start],
                                  panel[panel["split"] == "test"]])
             t0 = time.perf_counter()
-            model = DirectGBM(**cfg).fit(history, start, frames=frames)
+            builder = Blend if "variants" in cfg else DirectGBM
+            model = builder(**cfg).fit(history, start, frames=frames)
             pred = np.nan_to_num(model.predict(holdout))
             score = E.rmsle(holdout["sales"], pred)
             rows.append({"experiment": name, "fold": f"{start:%Y-%m-%d}",
