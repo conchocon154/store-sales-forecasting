@@ -1,0 +1,15 @@
+{
+  "id": "minhngle/store-sales-direct-multi-horizon-forecasting",
+  "title": "Store Sales: Direct Multi-Horizon Forecasting",
+  "code_file": "store-sales-forecasting.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "competition_sources": ["store-sales-time-series-forecasting"],
+  "dataset_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

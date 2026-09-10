@@ -135,6 +135,21 @@ trend, WTI oil forward-filled across the days it has no quote, `onpromotion`
 - **The Manabí earthquake**, 16 April 2016, and the eight weeks of relief
   buying after it.
 
+## The notebook
+
+The public version lives on Kaggle as
+**[Store Sales: Direct Multi-Horizon Forecasting](https://www.kaggle.com/code/minhngle/store-sales-direct-multi-horizon-forecasting)**,
+and a copy is in [`notebooks/`](notebooks/).
+
+It is generated, not written: `tools/build_notebook.py` inlines the modules from
+`src/` into cells, because a Kaggle notebook cannot import from a package and
+maintaining a second copy of the model by hand means two copies that eventually
+disagree.
+
+```bash
+.venv/bin/python tools/build_notebook.py
+```
+
 ## Running it
 
 ```bash
