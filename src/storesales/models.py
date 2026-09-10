@@ -148,6 +148,13 @@ class DirectGBM(Baseline):
     # for this weekday over the last eight weeks.
     ANCHOR = "dow_mean_8w"
 
+    # Defaults are the plain level model on 52 fortnightly origins. The queue's
+    # best-by-mean variant, `residual_wide` (residual target, 78 origins,
+    # three-fold mean 0.38991 against this model's 0.39125), was shipped and
+    # came back 0.50065 on the public leaderboard — 0.09 worse, against a
+    # single-model expectation of about +0.010. The residual target and the
+    # extra origins both help the two easy folds and fail the August test set;
+    # the mean hid it. Selection here is by the third fold, not the mean.
     def __init__(self, n_origins: int = 52, origin_step: int = 7,
                  horizon: int = 16, seed: int = 0, residual: bool = False,
                  half_life: float | None = None, **kw):

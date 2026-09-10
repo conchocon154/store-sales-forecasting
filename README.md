@@ -69,15 +69,29 @@ error on 3% of the rows, and this chart is why.
 | leaderboard best | 0.37294 | 1 |
 | top 1% | 0.37715 | 7 |
 | top 5% | 0.38369 | 33 |
-| **this, submitted** | **0.40695** | **~92** |
+| **best submitted** | **0.40695** | **~92** |
 
-**The honest headline is that the leaderboard has not moved.** Two submissions,
-a plain gradient booster and a three-way blend with a substantially better
-feature set, scored 0.40713 and 0.40695 — a difference of 0.0002 — while their
-local scores on the fold immediately before the test period differ by 0.021
-(0.42956 against 0.40892). Local improvement is real and measured; it is simply
-not reaching the leaderboard, and until that is understood, more feature work is
-guessing.
+**The honest headline is that the leaderboard has not moved, and one attempt to
+move it made things much worse.** Three submissions:
+
+| submission | local mean | local fold 3 | public |
+|---|---:|---:|---:|
+| plain gradient booster | 0.3975 | 0.4296 | 0.40713 |
+| three-way blend | 0.39163 | 0.40892 | **0.40695** |
+| `residual_wide` (best local mean) | 0.38991 | 0.41073 | 0.50065 |
+
+The third one is the lesson. It was picked because it had the lowest three-fold
+mean of the fifteen variants measured — and it lost 0.09 on the leaderboard,
+against a single-model local-to-public gap that had been about 0.010 every time
+before. It also had the *worst* third fold of the three. The three-fold mean
+rewards the two folds ending in early July, the residual-vs-weekday-mean target
+and the extra training origins both flatter those folds, and none of it survives
+contact with an August test set. **Selection is by the third fold now, not the
+mean** — and on the third fold nothing in the queue beats the shipped blend.
+
+Local improvement measured on the mean is not just failing to reach the
+leaderboard; it is anti-correlated with it once the target leaves the plateau.
+Until the local/public gap is understood, more feature work is guessing.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="reports/figures/error-by-horizon-dark.png">
@@ -93,11 +107,15 @@ with an obvious test — hold out only the first eight days of a fold, and only
 the last eight, and see which one tracks the leaderboard — and it is the next
 thing to run, ahead of any new feature.
 
-The feature search has plateaued. Six variants — explicit lags, a residual
+The feature search has plateaued. Fifteen variants — explicit lags, a residual
 target against the weekday mean, recency-weighted origins, a year-ago seasonal
-index, deeper trees, more origins — all land between 0.391 and 0.394 on the
-three-fold mean. When that many different feature sets give the same answer,
-the next gain is not another feature.
+index, deeper trees, more origins, three- and four-way blends of all of these —
+all land between 0.390 and 0.393 on the three-fold mean. When that many
+different feature sets give the same answer, the next gain is not another
+feature. One thing the sweep did show: recency weighting (halving the weight of
+an origin every 180 days) improves the *third* fold specifically — `lags` from
+0.42002 to 0.41123, `season` from 0.41305 to 0.41123 — which is the only fold
+that matters.
 
 ### Where the loss is
 

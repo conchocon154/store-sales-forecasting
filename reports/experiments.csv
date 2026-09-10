@@ -1,26 +1,23 @@
 experiment,fold,rmsle,seconds,config
 residual,2017-06-29,0.3705830440192016,119.342524875,{'residual': True}
-residual,2017-07-15,0.39107085573084677,137.85148920900002,{'residual': True}
+residual,2017-07-15,0.3910708557308467,137.85148920900002,{'residual': True}
 residual,2017-07-31,0.4194241344979584,127.66487341599998,{'residual': True}
 lags,2017-06-29,0.3713087894945219,150.07679295800003,{}
 lags,2017-07-15,0.3866236795081737,156.790706125,{}
-lags,2017-07-31,0.42001843773102837,150.16205087500003,{}
-season,2017-06-29,0.37260628365817955,147.577087584,{}
+lags,2017-07-31,0.4200184377310283,150.16205087500003,{}
+season,2017-06-29,0.3726062836581795,147.577087584,{}
 season,2017-07-15,0.3880843237534262,150.47209725,{}
-season,2017-07-31,0.41304828570698904,148.934057291,{}
-blend3,2017-06-29,0.37009899562442505,530.1215439590001,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
-blend3,2017-07-15,0.39585265590276,463.14555862500004,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
-blend3,2017-07-31,0.40892364734098946,570.645850041,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
-base_20origins,2017-06-29,0.37390563827796186,106.704525375,"{'n_origins': 20, 'origin_step': 14, 'max_iter': 500, 'learning_rate': 0.06}"
+season,2017-07-31,0.413048285706989,148.934057291,{}
+blend3,2017-06-29,0.370098995624425,530.1215439590001,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
+blend3,2017-07-15,0.39585265590276,463.145558625,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
+blend3,2017-07-31,0.4089236473409894,570.645850041,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
+base_20origins,2017-06-29,0.3739056382779618,106.704525375,"{'n_origins': 20, 'origin_step': 14, 'max_iter': 500, 'learning_rate': 0.06}"
 base_20origins,2017-07-15,0.3952157124160539,80.4950005,"{'n_origins': 20, 'origin_step': 14, 'max_iter': 500, 'learning_rate': 0.06}"
 base_20origins,2017-07-31,0.4173800783761676,153.5885575,"{'n_origins': 20, 'origin_step': 14, 'max_iter': 500, 'learning_rate': 0.06}"
-wide_52origins,2017-06-29,0.37260628365817955,302.812270542,"{'n_origins': 52, 'origin_step': 7}"
+wide_52origins,2017-06-29,0.3726062836581795,302.812270542,"{'n_origins': 52, 'origin_step': 7}"
 wide_52origins,2017-07-15,0.3880843237534262,316.3656166249999,"{'n_origins': 52, 'origin_step': 7}"
-wide_52origins,2017-07-31,0.41304828570698904,157.317761667,"{'n_origins': 52, 'origin_step': 7}"
-blend3,2017-06-29,0.37009899562442505,446.64741037499994,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
-blend3,2017-07-15,0.39585265590276,456.2119427079999,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
-blend3,2017-07-31,0.40892364734098946,449.38048979199993,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
-blend4,2017-06-29,0.37026536040462654,712.6452906670002,"{'variants': [{}, {'residual': True}, {'half_life': 180}, {'max_leaf_nodes': 127, 'min_samples_leaf': 20}]}"
+wide_52origins,2017-07-31,0.413048285706989,157.317761667,"{'n_origins': 52, 'origin_step': 7}"
+blend4,2017-06-29,0.3702653604046265,712.6452906670002,"{'variants': [{}, {'residual': True}, {'half_life': 180}, {'max_leaf_nodes': 127, 'min_samples_leaf': 20}]}"
 blend4,2017-07-15,0.3928407230063742,693.9426909580002,"{'variants': [{}, {'residual': True}, {'half_life': 180}, {'max_leaf_nodes': 127, 'min_samples_leaf': 20}]}"
 blend4,2017-07-31,0.4091100889824955,629.5983325410002,"{'variants': [{}, {'residual': True}, {'half_life': 180}, {'max_leaf_nodes': 127, 'min_samples_leaf': 20}]}"
 season_recency,2017-06-29,0.3729722385498602,152.6179231670003,{'half_life': 180}
@@ -29,12 +26,21 @@ season_recency,2017-07-31,0.4112259242579269,149.97083349999957,{'half_life': 18
 lags_recency,2017-06-29,0.3729722385498602,151.29679266699986,{'half_life': 180}
 lags_recency,2017-07-15,0.3895410491572379,153.4079133339992,{'half_life': 180}
 lags_recency,2017-07-31,0.4112259242579269,150.22696545799954,{'half_life': 180}
-residual_deep,2017-06-29,0.37119151065884476,175.16936437500044,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
-residual_deep,2017-07-15,0.45462339199454976,178.44065808300002,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
+residual_deep,2017-06-29,0.3711915106588447,175.16936437500044,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
+residual_deep,2017-07-15,0.4546233919945497,178.44065808300002,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
 residual_deep,2017-07-31,0.411004202617541,176.04672816699986,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
 residual_slow,2017-06-29,0.3705971995254118,251.86248370799967,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
-residual_slow,2017-07-15,0.44110730456375347,290.5791190830005,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
-residual_slow,2017-07-31,0.41183734995619453,597.1115988339998,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
-residual_recency,2017-06-29,0.37290867808529776,292.5808381249999,"{'residual': True, 'half_life': 180}"
-residual_recency,2017-07-15,0.43233920498050715,237.7268920000006,"{'residual': True, 'half_life': 180}"
+residual_slow,2017-07-15,0.4411073045637534,290.5791190830005,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
+residual_slow,2017-07-31,0.4118373499561945,597.1115988339998,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
+residual_recency,2017-06-29,0.3729086780852977,292.5808381249999,"{'residual': True, 'half_life': 180}"
+residual_recency,2017-07-15,0.4323392049805071,237.7268920000006,"{'residual': True, 'half_life': 180}"
 residual_recency,2017-07-31,0.4106086736442532,153.65316299999995,"{'residual': True, 'half_life': 180}"
+residual_recency_fast,2017-06-29,0.3748240598423646,152.93644304100053,"{'residual': True, 'half_life': 90}"
+residual_recency_fast,2017-07-15,0.3942659563170446,154.7598793750003,"{'residual': True, 'half_life': 90}"
+residual_recency_fast,2017-07-31,0.4102520836542571,152.90639712499978,"{'residual': True, 'half_life': 90}"
+residual_wide,2017-06-29,0.3703377742540742,221.27276908400017,"{'residual': True, 'n_origins': 78, 'origin_step': 7}"
+residual_wide,2017-07-15,0.388675941869016,234.24353866699855,"{'residual': True, 'n_origins': 78, 'origin_step': 7}"
+residual_wide,2017-07-31,0.4107277601676157,230.48801454100067,"{'residual': True, 'n_origins': 78, 'origin_step': 7}"
+residual_deep_slow,2017-06-29,0.3731733334504724,327.1471099999999,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20, 'max_iter': 1600, 'learning_rate': 0.025, 'half_life': 180}"
+residual_deep_slow,2017-07-15,0.435273140809923,314.0751116669999,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20, 'max_iter': 1600, 'learning_rate': 0.025, 'half_life': 180}"
+residual_deep_slow,2017-07-31,0.4122259336967848,306.44158745799905,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20, 'max_iter': 1600, 'learning_rate': 0.025, 'half_life': 180}"

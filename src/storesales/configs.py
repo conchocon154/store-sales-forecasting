@@ -48,13 +48,25 @@ QUEUE: dict[str, dict] = {
     "residual_deep_slow": dict(residual=True, max_leaf_nodes=127,
                                min_samples_leaf=20, max_iter=1600,
                                learning_rate=0.025, half_life=180),
+
+    # --- recency, targeting the third fold -------------------------------
+    # The queue's one clear signal: recency weighting improves fold 3 (the only
+    # fold shaped like the test set) — lags 0.42002 -> 0.41123 with half_life
+    # 180. These push on that and drop the `residual` target, which shipped as
+    # `residual_wide` and scored 0.50065. Single models are cheap; the blends
+    # keep the diversity that beat every single model on fold 3.
+    "hl120":            dict(half_life=120),
+    "hl90":             dict(half_life=90),
+    "blend_recency":    dict(variants=[dict(), dict(half_life=180),
+                                       dict(half_life=90)]),
+    "blend_recency4":   dict(variants=[dict(), dict(half_life=270),
+                                       dict(half_life=180), dict(half_life=90)]),
 }
 
-# What ships. Chosen on the *third* fold rather than the three-fold mean: the
-# third fold is the sixteen days immediately before the test period and it is
-# the only one asking the question the leaderboard asks. On that fold the blend
-# scores 0.40892 against 0.41305 for the best single model and 0.42956 for the
-# first submission — while on the three-fold mean it looks like a tie, which is
-# how the mean misleads.
+# What ships: the three-way blend, the best score the leaderboard has actually
+# seen (0.40695). Chosen on the *third* fold, not the three-fold mean: the third
+# fold is the sixteen days immediately before the test period. `residual_wide`
+# won the mean (0.38991 vs 0.39163) and was shipped next — it came back 0.50065,
+# which is why the mean is not the selection criterion here.
 SUBMISSION: dict = dict(variants=[dict(), dict(residual=True),
                                   dict(half_life=180)])
