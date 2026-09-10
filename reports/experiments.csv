@@ -20,3 +20,18 @@ wide_52origins,2017-07-31,0.41304828570698904,157.317761667,"{'n_origins': 52, '
 blend3,2017-06-29,0.37009899562442505,446.64741037499994,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
 blend3,2017-07-15,0.39585265590276,456.2119427079999,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
 blend3,2017-07-31,0.40892364734098946,449.38048979199993,"{'variants': [{}, {'residual': True}, {'half_life': 180}]}"
+blend4,2017-06-29,0.37026536040462654,712.6452906670002,"{'variants': [{}, {'residual': True}, {'half_life': 180}, {'max_leaf_nodes': 127, 'min_samples_leaf': 20}]}"
+blend4,2017-07-15,0.3928407230063742,693.9426909580002,"{'variants': [{}, {'residual': True}, {'half_life': 180}, {'max_leaf_nodes': 127, 'min_samples_leaf': 20}]}"
+blend4,2017-07-31,0.4091100889824955,629.5983325410002,"{'variants': [{}, {'residual': True}, {'half_life': 180}, {'max_leaf_nodes': 127, 'min_samples_leaf': 20}]}"
+season_recency,2017-06-29,0.3729722385498602,152.6179231670003,{'half_life': 180}
+season_recency,2017-07-15,0.3895410491572379,153.3048825420001,{'half_life': 180}
+season_recency,2017-07-31,0.4112259242579269,149.97083349999957,{'half_life': 180}
+lags_recency,2017-06-29,0.3729722385498602,151.29679266699986,{'half_life': 180}
+lags_recency,2017-07-15,0.3895410491572379,153.4079133339992,{'half_life': 180}
+lags_recency,2017-07-31,0.4112259242579269,150.22696545799954,{'half_life': 180}
+residual_deep,2017-06-29,0.37119151065884476,175.16936437500044,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
+residual_deep,2017-07-15,0.45462339199454976,178.44065808300002,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
+residual_deep,2017-07-31,0.411004202617541,176.04672816699986,"{'residual': True, 'max_leaf_nodes': 127, 'min_samples_leaf': 20}"
+residual_slow,2017-06-29,0.3705971995254118,251.86248370799967,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
+residual_slow,2017-07-15,0.44110730456375347,290.5791190830005,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"
+residual_slow,2017-07-31,0.41183734995619453,597.1115988339998,"{'residual': True, 'max_iter': 1600, 'learning_rate': 0.025}"

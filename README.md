@@ -9,7 +9,7 @@ of history. Scored on RMSLE.
 
 | Model | 2017-06-29 | 2017-07-15 | 2017-07-31 | **mean RMSLE** |
 |---|---:|---:|---:|---:|
-| **direct GBM** | 0.3746 | 0.3884 | 0.4296 | **0.3975** |
+| **direct GBM** | 0.3726 | 0.3881 | 0.4131 | **0.3912** |
 | weekday mean, 8 weeks | 0.4059 | 0.4170 | 0.5286 | 0.4505 |
 | weekday mean, 4 weeks | 0.4175 | 0.4295 | 0.5398 | 0.4623 |
 | weekday mean, 16 weeks | 0.4870 | 0.4649 | 0.5224 | 0.4914 |
@@ -20,6 +20,43 @@ of history. Scored on RMSLE.
 Lower is better. Every row is measured the same way, on the same folds, with
 the same dead-series rule applied — so the gap between them is the modelling
 and not the protocol.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/model-ladder-dark.png">
+  <img alt="RMSLE by model, three-fold mean: direct GBM 0.3912, weekday mean 0.4505, seasonal naive 0.5519, last value 0.6175" src="reports/figures/model-ladder-light.png">
+</picture>
+
+## What the series look like
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/daily-sales-dark.png">
+  <img alt="Total daily sales across 54 stores from 2013 to 2017: the level roughly doubles, the weekly cycle is strong, and the line drops to zero every 1 January" src="reports/figures/daily-sales-light.png">
+</picture>
+
+Three things worth seeing before modelling anything. The level roughly doubles
+over four and a half years, so a model with no trend term is low on the test
+window by construction. The line drops to exactly zero every 1 January — the
+shops are shut, which is a fact about the calendar and not a forecasting
+problem. And the weekly shape is strong and regular, which is why a plain
+weekday mean is such a hard baseline to beat.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/weekday-profile-dark.png">
+  <img alt="Mean sales by weekday: Saturday and Sunday clearly above the weekdays" src="reports/figures/weekday-profile-light.png">
+</picture>
+
+### The family that costs the most
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/seasonal-index-dark.png">
+  <img alt="Annual shape indexed to each family's own average day: grocery flat at 1.0 all year, school and office supplies at 0.3 for most of the year and 7 times its average in the weeks around the test window" src="reports/figures/seasonal-index-light.png">
+</picture>
+
+Indexed so two families of very different size read on one axis — 1.0 is each
+family's own average day. Grocery sits flat on 1.0. School and office supplies
+runs at about **0.3×** for most of the year and **7×** in the weeks around the
+test window, because Ecuadorean term starts in August. That one family carries
+13.1% of the squared error on 3% of the rows, and this chart is why.
 
 ## Where this actually stands
 
@@ -37,6 +74,11 @@ local scores on the fold immediately before the test period differ by 0.021
 (0.42956 against 0.40892). Local improvement is real and measured; it is simply
 not reaching the leaderboard, and until that is understood, more feature work is
 guessing.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/error-by-horizon-dark.png">
+  <img alt="RMSLE by days ahead, climbing from about 0.385 on day one to 0.455 on day sixteen, with a fitted trend of plus 0.05 across the window" src="reports/figures/error-by-horizon-light.png">
+</picture>
 
 The most likely explanation is in the per-day error. Across a sixteen-day fold
 the error climbs from about 0.40 on the first days to 0.46 on the last, because
@@ -64,6 +106,11 @@ Splitting the third fold's squared error rather than staring at the aggregate:
 | LINGERIE | 7.3% | 3.0% | 0.651 |
 | CELEBRATION | 5.1% | 3.0% | 0.544 |
 | MAGAZINES | 4.7% | 3.0% | 0.525 |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="reports/figures/error-by-family-dark.png">
+  <img alt="Share of squared error by family: school and office supplies 13.1%, grocery II 10.2%, lingerie 7.3%" src="reports/figures/error-by-family-light.png">
+</picture>
 
 Five families out of thirty-three carry 40% of the error on 15% of the rows,
 and the worst of them is the one with the sharpest annual season — Ecuadorean
@@ -148,6 +195,17 @@ disagree.
 
 ```bash
 .venv/bin/python tools/build_notebook.py
+```
+
+## The charts
+
+Every figure above is drawn by `tools/render_charts.py` from
+`reports/tables/*.csv`, which the same script emits — so any point on any chart
+traces back to the run that produced it, and the portfolio reads those tables
+rather than keeping a second copy of the arithmetic.
+
+```bash
+.venv/bin/python tools/render_charts.py
 ```
 
 ## Running it

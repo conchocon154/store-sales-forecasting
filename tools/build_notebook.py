@@ -163,6 +163,29 @@ to know what you are doing differently.
 ## Submission
 """
 
+SHAPE_NOTE = """
+## What the series actually look like
+
+Three things worth seeing before modelling anything. The level roughly doubles
+over four and a half years, so a model with no trend term will be low on the
+test window by construction. The line drops to exactly zero every 1 January —
+the shops are shut, and that is a fact about the calendar rather than a
+forecasting problem. And the weekly shape is strong and regular, which is why a
+plain weekday mean is such a hard baseline to beat.
+"""
+
+SEASON_NOTE = """
+### The one that costs the most
+
+The annual shape, indexed so two families of very different size read on one
+axis: 1.0 is each family's own average day. Grocery sits flat on 1.0 all year.
+School and office supplies runs at about **0.3×** for most of the year and
+**7×** in the weeks around the test window — Ecuadorean term starts in August.
+
+That single family carries 13.1% of the squared error on 3% of the rows. This
+chart is why.
+"""
+
 LADDER_NOTE = """
 The weekday mean is the number to beat, and it is three lines of pandas: it
 captures the level of each series and its weekly shape, which is most of what
@@ -179,9 +202,17 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingRegressor
+
+plt.rcParams.update({
+    "figure.dpi": 120, "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "grid.alpha": 0.35, "axes.titlesize": 11,
+    "axes.titlelocation": "left", "font.size": 9,
+})
+INK, ACCENT, WARN, MUTE = "#1a1d21", "#0f766e", "#c2410c", "#9aa3ad"
 
 
 def find_data():
@@ -232,6 +263,91 @@ gone = last60.groupby(["store_nbr", "family"]).sales.sum().pipe(lambda s: s[s ==
 covered = test.set_index(["store_nbr", "family"]).index.isin(set(gone))
 print(f"sold nothing in the last 60 days: {len(gone)} series, covering "
       f"{covered.sum()} of {covered.size} rows to predict")
+"""
+
+EDA_CHARTS = """
+daily = train.groupby("date").sales.sum()
+fig, ax = plt.subplots(figsize=(10, 3.2))
+ax.plot(daily.index, daily.values, color=MUTE, lw=0.6, alpha=.8, label="daily total")
+ax.plot(daily.index, daily.rolling(28, min_periods=7).mean(), color=ACCENT, lw=2,
+        label="28-day mean")
+ax.set(title="Total daily sales across 54 stores, 2013-2017", ylabel="sales")
+ax.legend(frameon=False)
+plt.show()
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 3.0))
+dow = train.assign(d=train.date.dt.dayofweek).groupby("d").sales.mean()
+axes[0].bar(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], dow.values,
+            color=[ACCENT] * 5 + [WARN] * 2, width=.68)
+axes[0].set(title="Mean sales by weekday", ylabel="sales per series-day")
+
+promo = train.groupby(train.onpromotion.clip(upper=20)).sales.mean()
+axes[1].plot(promo.index, promo.values, color=ACCENT, lw=2, marker="o", ms=3)
+axes[1].set(title="Sales against items on promotion", xlabel="onpromotion",
+            ylabel="mean sales")
+plt.tight_layout(); plt.show()
+"""
+
+SEASON_CHART = """
+pair = train[train.family.isin(["SCHOOL AND OFFICE SUPPLIES", "GROCERY I"])]
+by_day = pair.groupby(["family", "date"]).sales.sum().reset_index()
+by_day["doy"] = by_day.date.dt.dayofyear
+season = by_day.groupby(["family", "doy"]).sales.mean().reset_index()
+season["index"] = season.groupby("family").sales.transform(lambda s: s / s.mean())
+season = (season.pivot(index="doy", columns="family", values="index")
+                .rolling(7, center=True, min_periods=3).mean())
+
+fig, ax = plt.subplots(figsize=(7.5, 3.2))
+ax.plot(season.index, season["SCHOOL AND OFFICE SUPPLIES"], color=WARN, lw=2,
+        label="school & office supplies")
+ax.plot(season.index, season["GROCERY I"], color=ACCENT, lw=2, label="grocery I")
+ax.axhline(1.0, color="#d0d5db", lw=1)
+ax.axvspan(228, 243, color=WARN, alpha=.12)
+ax.annotate("test window", (235, ax.get_ylim()[1] * .06), color=WARN, ha="center")
+ax.set(title="Annual shape, indexed to each family's own average day",
+       xlabel="day of year", ylabel="x average day")
+ax.legend(frameon=False)
+plt.show()
+"""
+
+LADDER_CHART = """
+ladder = (scores.pivot_table(index="model", columns="fold", values="rmsle")
+                .assign(mean=lambda t: t.mean(axis=1)).sort_values("mean"))
+plot = ladder.drop(index="zero", errors="ignore").sort_values("mean", ascending=False)
+
+fig, ax = plt.subplots(figsize=(7, 3.0))
+best = plot["mean"].min()
+ax.barh(plot.index, plot["mean"],
+        color=[ACCENT if v == best else MUTE for v in plot["mean"]], height=.62)
+for y, v in enumerate(plot["mean"]):
+    ax.text(v + .006, y, f"{v:.4f}", va="center", color="#5b6470", fontsize=8.5)
+ax.set_xlim(0, plot["mean"].max() * 1.18)
+ax.set(title="RMSLE, mean of three sixteen-day folds - lower is better", xlabel="RMSLE")
+plt.show()
+"""
+
+ERROR_CHARTS = """
+fig, axes = plt.subplots(1, 2, figsize=(11, 3.4))
+
+top = (holdout.groupby("family").err2.sum().div(holdout.err2.sum()).mul(100)
+              .sort_values().tail(10))
+axes[0].barh(top.index.str.title(), top.values,
+             color=[WARN if f == "SCHOOL AND OFFICE SUPPLIES" else ACCENT
+                    for f in top.index], height=.66)
+axes[0].set(title="Share of squared error, worst ten families",
+            xlabel="% of total squared error")
+
+h = holdout.assign(horizon=(holdout.date - holdout.date.min()).dt.days + 1)
+per_h = h.groupby("horizon").err2.mean().pow(.5)
+slope, intercept = np.polyfit(per_h.index, per_h.values, 1)
+axes[1].plot(per_h.index, per_h.values, color=WARN, lw=2, marker="o", ms=3.5,
+             label="RMSLE")
+axes[1].plot(per_h.index, intercept + slope * per_h.index, color=MUTE, lw=1.3,
+             ls="--", label=f"+{slope * 15:.3f} over the window")
+axes[1].set(title="Error climbs across the sixteen-day horizon",
+            xlabel="days ahead", ylabel="RMSLE")
+axes[1].legend(frameon=False)
+plt.tight_layout(); plt.show()
 """
 
 BACKTEST = """
@@ -322,16 +438,21 @@ def build() -> list[dict]:
         code(source("data.py")),
         md(HOLIDAY_NOTE),
         code(FACTS),
+        md(SHAPE_NOTE),
+        code(EDA_CHARTS),
+        md(SEASON_NOTE),
+        code(SEASON_CHART),
         md("## Features"),
         code(source("features.py")),
         md("## The model, and the ladder it has to beat"),
         code(source("models.py")),
         md("### Backtest"),
         code(BACKTEST),
+        code(LADDER_CHART),
         md(LADDER_NOTE),
         code(DIAGNOSE),
         md(DIAGNOSIS_NOTE),
-        code(PER_DAY),
+        code(ERROR_CHARTS),
         md(FINDING),
         code(SUBMIT),
     ]
