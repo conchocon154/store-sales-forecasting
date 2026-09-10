@@ -49,12 +49,12 @@ QUEUE: dict[str, dict] = {
                                min_samples_leaf=20, max_iter=1600,
                                learning_rate=0.025, half_life=180),
 
-    # --- recency, targeting the third fold -------------------------------
-    # The queue's one clear signal: recency weighting improves fold 3 (the only
-    # fold shaped like the test set) — lags 0.42002 -> 0.41123 with half_life
-    # 180. These push on that and drop the `residual` target, which shipped as
-    # `residual_wide` and scored 0.50065. Single models are cheap; the blends
-    # keep the diversity that beat every single model on fold 3.
+    # --- recency: measured, and a dead end ------------------------------
+    # Recency weighting improves fold 3 in the backtest (lags 0.42002 -> 0.41123
+    # at half_life 180) so these pushed on it and dropped the `residual` target.
+    # `blend_recency` won fold 3 locally by 0.0001 and lost 0.004 on the public
+    # leaderboard: a 90-day half-life buries the year-ago seasonal signal that
+    # school-supplies season needs. Kept for the record; do not resubmit.
     "hl120":            dict(half_life=120),
     "hl90":             dict(half_life=90),
     "blend_recency":    dict(variants=[dict(), dict(half_life=180),
@@ -63,10 +63,19 @@ QUEUE: dict[str, dict] = {
                                        dict(half_life=180), dict(half_life=90)]),
 }
 
-# What ships: the three-way blend, the best score the leaderboard has actually
-# seen (0.40695). Chosen on the *third* fold, not the three-fold mean: the third
-# fold is the sixteen days immediately before the test period. `residual_wide`
-# won the mean (0.38991 vs 0.39163) and was shipped next — it came back 0.50065,
-# which is why the mean is not the selection criterion here.
+# What ships: the original three-way blend. It is still the best score the
+# leaderboard has seen (0.40695), and two attempts to beat it both regressed:
+#
+#   variant         local fold 3   public   note
+#   residual_wide   0.41073        0.50065  best local *mean*, worst top-3 fold 3
+#   blend_recency   0.40879        0.41139  ~tied blend3 on fold 3, +0.004 public
+#
+# The pattern is now firm: at this magnitude a local fold-3 edge of 0.0001-0.001
+# is noise, and recency weighting — which improves fold 3 — *hurts* the real
+# August test set, because a 90-day half-life buries the year-ago seasonal
+# signal that school-supplies season depends on. The three backtest folds all
+# end 31 July; none of them can see the August ramp, so tuning against them has
+# stopped paying. The next move is structural (understand the public/private
+# split, or a lever robust by construction), not another variant.
 SUBMISSION: dict = dict(variants=[dict(), dict(residual=True),
                                   dict(half_life=180)])

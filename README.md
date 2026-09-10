@@ -71,27 +71,36 @@ error on 3% of the rows, and this chart is why.
 | top 5% | 0.38369 | 33 |
 | **best submitted** | **0.40695** | **~92** |
 
-**The honest headline is that the leaderboard has not moved, and one attempt to
-move it made things much worse.** Three submissions:
+**The honest headline is that the leaderboard has not moved, and two attempts to
+move it both made things worse.** Four submissions:
 
 | submission | local mean | local fold 3 | public |
 |---|---:|---:|---:|
 | plain gradient booster | 0.3975 | 0.4296 | 0.40713 |
 | three-way blend | 0.39163 | 0.40892 | **0.40695** |
-| `residual_wide` (best local mean) | 0.38991 | 0.41073 | 0.50065 |
+| `residual_wide` — best local mean | 0.38991 | 0.41073 | 0.50065 |
+| `blend_recency` — best local mean, no residual | 0.38942 | 0.40879 | 0.41139 |
 
-The third one is the lesson. It was picked because it had the lowest three-fold
-mean of the fifteen variants measured — and it lost 0.09 on the leaderboard,
-against a single-model local-to-public gap that had been about 0.010 every time
-before. It also had the *worst* third fold of the three. The three-fold mean
-rewards the two folds ending in early July, the residual-vs-weekday-mean target
-and the extra training origins both flatter those folds, and none of it survives
-contact with an August test set. **Selection is by the third fold now, not the
-mean** — and on the third fold nothing in the queue beats the shipped blend.
+`residual_wide` was picked for the lowest three-fold mean of nineteen variants
+and lost 0.09 on the leaderboard, against a local-to-public gap that had been
+about 0.010 every time before. So selection moved to the third fold — the
+sixteen days immediately before the test window — and `blend_recency`, which
+edged the shipped blend there (0.40879 vs 0.40892) while dropping the fragile
+residual target, was tried next. It came back 0.41139, +0.004 worse.
 
-Local improvement measured on the mean is not just failing to reach the
-leaderboard; it is anti-correlated with it once the target leaves the plateau.
-Until the local/public gap is understood, more feature work is guessing.
+Two lessons, both firm now:
+
+* At this magnitude a local third-fold edge of 0.0001–0.001 is noise. It does
+  not survive the trip to the leaderboard in either direction.
+* Recency weighting *improves* the backtest and *hurts* the real test set. A
+  90-day half-life leans the model on June–July and buries the year-ago
+  seasonal signal — which is exactly what school-supplies season, the single
+  largest error source, depends on.
+
+The three backtest folds all end 31 July; none of them can see the August
+seasonal ramp. Tuning against them has stopped paying, and the leaderboard is
+the only signal left that measures the right thing. The next move is structural,
+not another variant.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="reports/figures/error-by-horizon-dark.png">
@@ -107,15 +116,16 @@ with an obvious test — hold out only the first eight days of a fold, and only
 the last eight, and see which one tracks the leaderboard — and it is the next
 thing to run, ahead of any new feature.
 
-The feature search has plateaued. Fifteen variants — explicit lags, a residual
+The feature search has plateaued. Nineteen variants — explicit lags, a residual
 target against the weekday mean, recency-weighted origins, a year-ago seasonal
 index, deeper trees, more origins, three- and four-way blends of all of these —
-all land between 0.390 and 0.393 on the three-fold mean. When that many
-different feature sets give the same answer, the next gain is not another
-feature. One thing the sweep did show: recency weighting (halving the weight of
-an origin every 180 days) improves the *third* fold specifically — `lags` from
-0.42002 to 0.41123, `season` from 0.41305 to 0.41123 — which is the only fold
-that matters.
+all land between 0.389 and 0.393 on the three-fold mean, and the two that were
+put in front of the leaderboard both came back worse than the blend already
+shipped. Recency weighting looked like the exception — it improves the third
+fold locally (`lags` 0.42002 → 0.41123, `season` 0.41305 → 0.41123) — but
+`blend_recency` proved that gain is backtest-only and reverses on the real
+August test set. When that many feature sets give the same answer and the ones
+that look better lose on the leaderboard, the next gain is not another feature.
 
 ### Where the loss is
 

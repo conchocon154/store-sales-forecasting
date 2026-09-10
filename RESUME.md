@@ -52,43 +52,51 @@ An agent picking this up again has three jobs and no need to re-derive anything:
 
 ## What the last run established
 
-The queue drained — fifteen variants measured, `reports/experiments.csv` has
-them all. `residual_wide` (residual target, 78 origins) had the best three-fold
-mean at 0.38991, was shipped, and **came back 0.50065 on the public
-leaderboard** — 0.09 worse, where every single-model gap before was ~0.010. It
-also had the worst third fold of the top three variants (0.41073 against 0.40892
-for the shipped blend). Two lessons, both now baked into job #1 above:
+The queue drained — **nineteen variants measured**, `reports/experiments.csv`
+has them all. Two were put in front of the leaderboard and both regressed:
 
-* **The three-fold mean is the wrong selection criterion.** Folds 1 and 2 end
-  in early July and reward exactly the tricks (`residual`, more origins) that
-  fail an August test set. Select on fold 3.
-* **On fold 3, nothing in the queue beats the shipped three-way blend (0.40892).**
-  So the blend is still what ships, and the leaderboard still reads 0.40695.
+| variant | why picked | local fold 3 | public |
+|---|---|---:|---:|
+| `residual_wide` | best three-fold mean (0.38991) | 0.41073 | **0.50065** |
+| `blend_recency` | best fold 3 (0.40879), no residual | 0.40879 | **0.41139** |
 
-Recency weighting (`half_life=180`) is the one thing the sweep surfaced that
-helps fold 3 specifically: `lags` 0.42002 → 0.41123, `season` 0.41305 → 0.41123.
-The shipped blend already has one recency-weighted component; a blend tilted
-harder toward recency and dropping the fragile `residual` component is the
-cheapest thing left to try. Those variants are queued in `configs.py`.
+Three things are now firm:
 
-## The open question, which comes before any new feature
+* **The three-fold mean is anti-correlated with the leaderboard.** Folds 1–2
+  end in early July and reward `residual` and extra origins, which fail August.
+* **A fold-3 edge of 0.0001–0.001 is noise.** `blend_recency` beat the shipped
+  blend on fold 3 by 0.0001 and lost by 0.004 on the leaderboard.
+* **Recency weighting helps the backtest and hurts the test set.** A 90-day
+  half-life buries the year-ago seasonal signal that school-supplies season
+  needs. `half_life` is off the table as a lever.
 
-Local gains measured on the mean are anti-correlated with the leaderboard once
-the target leaves the plateau. **Do not add features until the local/public gap
-is understood.**
+The shipped three-way blend (0.40695) is still the best the leaderboard has
+seen. **Nothing measured against the current folds is worth submitting.**
 
-The hypothesis: across a sixteen-day fold the error climbs from ~0.40 on the
-early days to ~0.46 on the late ones (see `scripts/diagnose.py`), so if the
-public leaderboard covers the earlier part of the test window it is scoring the
-stretch where every model agrees. Cheap test — score a fold on its first eight
-and last eight days separately, resubmit one existing model, see which half
-tracks the leaderboard.
+## The open question, which now blocks everything
+
+The three backtest folds all end 31 July and cannot see the August seasonal
+ramp. Every variant tuned against them has stopped paying or actively backfired.
+**Do not submit anything else selected on these folds.** The next move is one of:
+
+1. **Understand the public/private split.** Hypothesis: the error climbs from
+   ~0.40 on early horizons to ~0.46 on late ones (see `scripts/diagnose.py`
+   grouped by date), so if the public leaderboard scores only the first stretch
+   of the test window it is measuring where every model agrees — which would
+   explain why nothing moves it. Cheap test: score a fold on its first eight and
+   last eight days separately; the split is knowable from the competition's
+   own timeline too.
+2. **A lever robust by construction**, not selected on the folds — the
+   two-stage zero model is the clearest (bounded fold-3 gain 0.42002 → 0.38602
+   for a perfect classifier) but it needs real code and a way to validate that
+   is not the July folds.
 
 ## Levers not yet pulled
 
-- **Recency-tilted blends without the residual component.** Queued now
-  (`blend_recency`, `blend_recency4`, `hl90`, `hl120`). Config-only, low risk,
-  aimed at fold 3.
+Config-only variants are exhausted — the `QUEUE` in `configs.py` is drained and
+nothing in it beat the shipped blend on the leaderboard. What is left needs
+code, and none of it should be shipped on the strength of the July folds alone.
+
 - **Two-stage zero handling.** A third of all rows are zero. Classify
   sells/doesn't, then regress on the rows that sell. A *perfect* zero classifier
   takes the August fold from 0.42002 to 0.38602 — the largest bounded prize
