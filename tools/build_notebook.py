@@ -183,7 +183,33 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingRegressor
 
-DATA = Path("/kaggle/input/store-sales-time-series-forecasting")
+
+def find_data():
+    # Wherever the seven files ended up. Kaggle mounts an attached competition
+    # under /kaggle/input, but the folder name is not reliably the competition
+    # slug, and locally the repo keeps the data in ./data. Searching for the
+    # file that must exist beats guessing a path and failing forty lines later
+    # on a missing train.csv.
+    # Recursive, because Kaggle nests an API-attached competition one level
+    # deeper than a UI-attached one: /kaggle/input/competitions/<slug>/ rather
+    # than /kaggle/input/<slug>/. Both turn up the same way here.
+    for root in (Path("/kaggle/input"), Path("."), Path("..")):
+        if not root.exists():
+            continue
+        for found in sorted(root.rglob("train.csv")):
+            if (found.parent / "stores.csv").exists():
+                return found.parent
+    here = Path("/kaggle/input")
+    listing = sorted(str(d.relative_to(here)) for d in here.rglob("*")
+                     if d.is_dir()) if here.exists() else []
+    raise SystemExit("competition data not found. /kaggle/input holds: "
+                     f"{listing or 'nothing'}. Add the competition under Input "
+                     "on the right, or unzip it into ./data locally.")
+
+
+DATA = find_data()
+print("reading from", DATA)
+
 pd.set_option("display.width", 120)
 """
 
