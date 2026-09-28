@@ -7,3 +7,4 @@ submission.csv
 
 reports/continue_nohup.log
 reports/*_nohup.log
+reports/*.log
